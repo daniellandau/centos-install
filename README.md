@@ -5,6 +5,7 @@ cp inventory-template.ini inventory.ini
 ansible-galaxy install geerlingguy.repo-epel --roles-path roles
 ansible-galaxy install thefinn93.letsencrypt --roles-path roles
 ansible-playbook email.yml -i inventory.ini --ask-become-pass
+ansible-playbook misc.yml -i inventory.ini --ask-become-pass
 ```
 
 * Set up SPF and DKIM text records

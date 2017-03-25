@@ -1,0 +1,25 @@
+---
+- hosts: [ server ]
+  remote_user: "{{ remote_user }}"
+  become: yes
+
+  tasks:
+    - yum: pkg={{item}} state=present
+      with_items:
+        - net-tools
+        - fail2ban-all
+        - yum-cron
+
+    - copy: src=fail2ban-jail.local dest=/etc/fail2ban/jail.local
+      notify:
+        - restart fail2ban
+
+
+    - service: name={{item}} state=started enabled=yes
+      with_items:
+        - fail2ban
+        - yum-cron
+
+  handlers:
+    - name: restart fail2ban
+      service: name=fail2ban state=restarted
