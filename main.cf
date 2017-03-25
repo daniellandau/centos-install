@@ -1,0 +1,94 @@
+compatibility_level = 2
+
+queue_directory = /var/spool/postfix
+command_directory = /usr/sbin
+daemon_directory = /usr/libexec/postfix
+
+data_directory = /var/lib/postfix
+
+mail_owner = postfix
+
+myhostname = {{ mail_domain }}
+mydomain = {{ mail_domain }}
+myorigin = $mydomain
+
+inet_interfaces = all
+
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+
+local_recipient_maps =
+
+unknown_local_recipient_reject_code = 550
+
+mynetworks_style = host
+
+relay_domains = $mydomain
+
+alias_maps = hash:/etc/postfix/aliases
+
+alias_database = $alias_maps
+
+home_mailbox = Maildir/
+ 
+mail_spool_directory = {{data_mount}}/mail
+
+mailbox_command = /usr/libexec/dovecot/dovecot-lda -f "$SENDER" -a "$RECIPIENT"
+
+# Spamassassin & Sieve
+# virtual_mailbox_domains = foobar
+#virtual_alias_domains = foobar
+# virtual_alias_maps = hash:/etc/postfix/virtual 
+# virtual_transport = dovecot
+
+luser_relay = daniel@$domain
+  
+
+debug_peer_level = 2
+debugger_command =
+	 PATH=/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin
+	 ddd $daemon_directory/$process_name $process_id & sleep 5
+
+sendmail_path = /usr/bin/sendmail.postfix
+newaliases_path = /usr/bin/newaliases.postfix
+mailq_path = /usr/bin/mailq.postfix
+
+setgid_group = postdrop
+
+html_directory = no
+manpage_directory = /usr/share/man
+
+sample_directory = /etc/postfix
+readme_directory = /usr/share/doc/postfix
+inet_protocols = all
+meta_directory = /etc/postfix
+shlib_directory = /usr/lib/postfix
+
+# TLS
+smtpd_tls_cert_file = /etc/letsencrypt/live/{{fully_qualified_domain}}/fullchain.pem
+smtpd_tls_key_file = /etc/letsencrypt/live/{{fully_qualified_domain}}/privkey.pem
+smtpd_tls_security_level = may
+smtpd_tls_auth_only = yes
+smtpd_tls_session_cache_timeout = 7200s
+smtpd_tls_mandatory_exclude_ciphers = aNULL, eNULL, EXPORT, DES, RC4, MD5, PSK, aECDH, EDH-DSS-DES-CBC3-SHA, EDH-RSA-DES-CDC3-SHA, KRB5-DE5, CBC3-SHA
+smtpd_tls_dh1024_param_file = /etc/postfix/dhparams.pem
+
+# SASL
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
+
+
+# Mailbox and mail size
+mailbox_size_limit = 0
+message_size_limit = 0
+
+# Address fun
+resolve_dequoted_address = no
+
+# DKIM
+non_smtpd_milters=inet:127.0.0.1:8891
+smtpd_milters=inet:127.0.0.1:8891
+
+

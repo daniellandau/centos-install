@@ -1,0 +1,90 @@
+---
+- hosts: [ server ]
+  remote_user: "{{ remote_user }}"
+  become: yes
+
+  roles:
+    - geerlingguy.repo-epel
+    - role: thefinn93.letsencrypt
+      letsencrypt_email: "letsencrypt@{{ mail_domain }}"
+      letsencrypt_cert_domains:
+        - "{{ fully_qualified_domain }}"
+      letsencrypt_renewal_command_args: '--renew-hook "systemctl restart nginx"'
+
+  tasks:
+    - name: Install email server programs
+      yum: pkg={{item}} state=present
+      with_items:
+        - postfix
+        - dovecot
+        - dovecot-pigeonhole
+        - opendkim
+        - mailx
+
+    - name: Create postfix dhparam
+      command: openssl dhparam -out /etc/postfix/dhparam.pem 2048
+      args:
+        creates: /etc/postfix/dhparam.pem
+
+    - name: Create postfix mail recipient user
+      user:
+        name: "{{ mail_recipient_user }}"
+        shell: /sbin/nologin
+        password: "{{ mail_recipient_passwd }}"
+
+    - service: name={{item}} state=started enabled=yes
+      with_items: [ postfix, dovecot ]
+
+    - name: Generate opendkim key
+      command: opendkim-genkey -r -s mail -d {{ mail_domain }}
+      args:
+        chdir: /etc/opendkim/keys
+        creates: /etc/opendkim/keys/mail.private
+      notify:
+        - restart opendkim
+
+    - name: Fix opendkim key permissions
+      file: path=/etc/opendkim/keys/{{item}} owner=opendkim group=opendkim
+      with_items: [ mail.private, mail.txt ]
+
+    - name: Install opendkim conf
+      template: src=opendkim.conf dest=/etc/opendkim.conf
+      notify:
+        - restart opendkim
+
+    - service: name={{item}} state=started enabled=yes
+      with_items: [ opendkim ]
+
+    - name: Install dovecot conf main file
+      template: src=dovecot.conf dest=/etc/dovecot/dovecot.conf
+      notify:
+        - restart dovecot
+
+    - name: Install dovecot rest conf files
+      template: src=dovecot.conf.d/{{item}} dest=/etc/dovecot/conf.d/{{item}}
+      with_items: [ 10-mail.conf, 10-master.conf, 10-ssl.conf, 15-lda.conf, 90-sieve.conf ]
+      notify:
+        - restart dovecot
+
+    - name: Install postfix conf files
+      template: src={{item}} dest=/etc/postfix/{{item}}
+      with_items:
+        - main.cf
+        - master.cf
+        - aliases
+      notify: 
+        - rebuild aliases
+        - restart postfix
+
+  handlers:
+    - name: rebuild aliases
+      command: newaliases
+
+    - name: restart postfix
+      service: name=postfix state=restarted
+
+    - name: restart opendkim
+      service: name=opendkim state=restarted
+
+    - name: restart dovecot
+      service: name=dovecot state=restarted
