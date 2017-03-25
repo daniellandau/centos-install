@@ -7,7 +7,7 @@
     - yum: pkg={{item}} state=present
       with_items:
         - net-tools
-        - fail2ban-all
+        - fail2ban-systemd
         - yum-cron
 
     - copy: src=fail2ban-jail.local dest=/etc/fail2ban/jail.local
