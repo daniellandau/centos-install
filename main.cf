@@ -70,7 +70,7 @@ smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
 smtpd_tls_session_cache_timeout = 7200s
 smtpd_tls_mandatory_exclude_ciphers = aNULL, eNULL, EXPORT, DES, RC4, MD5, PSK, aECDH, EDH-DSS-DES-CBC3-SHA, EDH-RSA-DES-CDC3-SHA, KRB5-DE5, CBC3-SHA
-smtpd_tls_dh1024_param_file = /etc/postfix/dhparams.pem
+smtpd_tls_dh1024_param_file = /etc/postfix/dhparam.pem
 
 # SASL
 smtpd_sasl_type = dovecot
