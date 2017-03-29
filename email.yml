@@ -20,6 +20,7 @@
         - dovecot-pigeonhole
         - opendkim
         - mailx
+        - spamassassin
 
     - name: Create postfix dhparam
       command: openssl dhparam -out /etc/postfix/dhparam.pem 2048
@@ -32,8 +33,28 @@
         shell: /sbin/nologin
         password: "{{ mail_recipient_passwd }}"
 
+    # According to https://www.rosehosting.com/blog/how-to-install-and-integrate-spamassassin-with-postfix-on-a-centos-6-vps/
+    - name: Create spamassassin group
+      group: name=spamfilter
+
+    - name: Create spamassassin user
+      user:
+        name: spamfilter
+        group: spamfilter
+        home: /usr/local/spamassassin
+        shell: /sbin/nologin
+        password: "!"
+
+    - name: Set spamassassin home dir owner
+      file: path=/usr/local/spamassassin owner=spamfilter
+
+    - name: Install spamd conf
+      copy: src=spamassassin-sysconfig dest=/etc/sysconfig/spamassassin
+      notify:
+        - restart spamassassin
+
     - service: name={{item}} state=started enabled=yes
-      with_items: [ postfix, dovecot ]
+      with_items: [ postfix, dovecot, spamassassin ]
 
     - name: Generate opendkim key
       command: opendkim-genkey -r -s mail -d {{ mail_domain }}
@@ -88,3 +109,6 @@
 
     - name: restart dovecot
       service: name=dovecot state=restarted
+
+    - name: restart spamassassin
+      service: name=spamassassin state=restarted

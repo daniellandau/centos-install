@@ -1,0 +1,1 @@
+SPAMDOPTIONS="-d -c -m5 --username spamfilter -H /usr/local/spamassassin -s /usr/local/spamassassin/spamfilter.log" 

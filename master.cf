@@ -2,7 +2,8 @@
 # service type  private unpriv  chroot  wakeup  maxproc command + args
 #               (yes)   (yes)   (no)    (never) (100)
 # ==========================================================================
-smtp      inet  n       -       n       -       -       smtpd
+smtp      inet  n       -       n       -       -       smtpd -o content_filter=spamassassin
+spamassassin unix -     n       n       -       -       pipe user={{ mail_recipient_user }} argv=/usr/bin/spamc -e /usr/libexec/dovecot/dovecot-lda -f "${sender}" -a "${recipient}"
 submission inet n       -       n       -       -       smtpd
   -o smtpd_tls_security_level=encrypt
   -o smtpd_sasl_auth_enable=yes
