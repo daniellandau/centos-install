@@ -36,6 +36,8 @@
         - php-process
         - php-pecl-zip
         - php-pecl-apcu
+        - redis
+        - php-pecl-redis
 
     - name: Create nginx dhparam
       command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
@@ -61,7 +63,7 @@
         - restart php-fpm
 
     - service: name={{item}} state=started enabled=yes
-      with_items: [ nginx, php-fpm ]
+      with_items: [ nginx, php-fpm, redis ]
 
     - name: Nextcloud update cron
       cron:
