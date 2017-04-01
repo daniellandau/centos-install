@@ -35,6 +35,7 @@
         - php-cli
         - php-process
         - php-pecl-zip
+        - php-pecl-apcu
 
     - name: Create nginx dhparam
       command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
