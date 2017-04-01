@@ -19,7 +19,7 @@
 
     - yum: pkg=yum-utils state=present
 
-    - name: enable php71
+    - name: enable php70
       command: yum-config-manager --enable remi-php70
       changed_when: false
 
