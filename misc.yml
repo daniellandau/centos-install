@@ -14,11 +14,12 @@
       notify:
         - restart fail2ban
 
-
     - service: name={{item}} state=started enabled=yes
       with_items:
         - fail2ban
         - yum-cron
+
+    - file: path={{data_mount}}/{{remote_user}} state=directory owner={{remote_user}}
 
   handlers:
     - name: restart fail2ban

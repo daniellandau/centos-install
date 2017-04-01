@@ -1,0 +1,77 @@
+---
+- hosts: server
+  remote_user: "{{ remote_user }}"
+  become: yes
+
+  roles:
+    - role: bertvv.mariadb
+      mariadb_root_password: "{{ db_root_password }}"
+      mariadb_databases:
+        - nextcloud
+      mariadb_users:
+        - name: nextcloud_admin
+          password: "{{nextcloud_db_password}}"
+          priv: "nextcloud.*:ALL"
+
+    - geerlingguy.repo-remi
+
+  tasks:
+
+    - yum: pkg=yum-utils state=present
+
+    - name: enable php71
+      command: yum-config-manager --enable remi-php70
+      changed_when: false
+
+    - name: Install web server programs
+      yum: pkg={{item}} state=present
+      with_items:
+        - nginx
+        - php-fpm
+        - php-xml
+        - php-gd
+        - php-mbstring
+        - php-mysql
+        - php-cli
+        - php-process
+        - php-pecl-zip
+
+    - name: Create nginx dhparam
+      command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
+      args:
+        creates: /etc/nginx/dhparam.pem
+
+    - name: Install directories
+      file: path={{item}} owner=nginx state=directory
+      with_items:
+        - /var/run/php-fpm/
+        - /var/lib/php/session
+        - "{{data_mount}}/webapps"
+
+    - name: Install conf files
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+        - { src: nginx.conf, dest: /etc/nginx/nginx.conf }
+        - { src: nextcloud.conf, dest: /etc/nginx/nextcloud.conf }
+        - { src: php-fpm-www.conf, dest: /etc/php-fpm.d/www.conf }
+
+      notify:
+        - reload nginx
+        - restart php-fpm
+
+    - service: name={{item}} state=started enabled=yes
+      with_items: [ nginx, php-fpm ]
+
+    - name: Nextcloud update cron
+      cron:
+        user: nginx
+        minute: "*/4"
+        name: nextcloud-update
+        job: php -f {{data_mount}}/webapps/pilvi/cron.php
+
+  handlers:
+    - name: reload nginx
+      service: name=nginx state=reloaded
+
+    - name: restart php-fpm
+      service: name=php-fpm state=reloaded
