@@ -8,10 +8,14 @@
       mariadb_root_password: "{{ db_root_password }}"
       mariadb_databases:
         - nextcloud
+        - wallabag
       mariadb_users:
         - name: nextcloud_admin
           password: "{{nextcloud_db_password}}"
           priv: "nextcloud.*:ALL"
+        - name: wallabag
+          password: "{{wallabag_db_password}}"
+          priv: "wallabag.*:ALL"
 
     - geerlingguy.repo-remi
 
@@ -38,6 +42,8 @@
         - php-pecl-apcu
         - redis
         - php-pecl-redis
+        - composer
+        - php-bcmath
 
     - name: Create nginx dhparam
       command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
@@ -57,6 +63,7 @@
         - { src: nginx.conf, dest: /etc/nginx/nginx.conf }
         - { src: nextcloud.conf, dest: /etc/nginx/nextcloud.conf }
         - { src: php-fpm-www.conf, dest: /etc/php-fpm.d/www.conf }
+        - { src: wallabag.conf, dest: /etc/nginx/wallabag.conf }
 
       notify:
         - reload nginx

@@ -9,6 +9,7 @@
       letsencrypt_email: "letsencrypt@{{ mail_domain }}"
       letsencrypt_cert_domains:
         - "{{ fully_qualified_domain }}"
+        - "{{ wallabag_domain }}"
       letsencrypt_renewal_command_args: '--renew-hook "systemctl restart nginx"'
 
   tasks:
