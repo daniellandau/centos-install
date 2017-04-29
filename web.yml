@@ -9,6 +9,7 @@
       mariadb_databases:
         - nextcloud
         - wallabag
+        - piwik
       mariadb_users:
         - name: nextcloud_admin
           password: "{{nextcloud_db_password}}"
@@ -16,6 +17,9 @@
         - name: wallabag
           password: "{{wallabag_db_password}}"
           priv: "wallabag.*:ALL"
+        - name: piwik
+          password: "{{piwik_db_password}}"
+          priv: "piwik.*:ALL"
 
     - geerlingguy.repo-remi
 
@@ -44,6 +48,7 @@
         - php-pecl-redis
         - composer
         - php-bcmath
+        - php-pecl-geoip
 
     - name: Create nginx dhparam
       command: openssl dhparam -out /etc/nginx/dhparam.pem 2048
