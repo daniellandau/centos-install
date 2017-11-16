@@ -9,6 +9,7 @@
         - net-tools
         - fail2ban-systemd
         - yum-cron
+        - scponly
 
     - copy: src=fail2ban-jail.local dest=/etc/fail2ban/jail.local
       notify:
@@ -20,6 +21,16 @@
         - yum-cron
 
     - file: path={{data_mount}}/{{remote_user}} state=directory owner={{remote_user}}
+
+    - name: Android backup android-sync user
+      user:
+        name: android-sync
+        shell: /bin/bash
+        password: "!"
+        createhome: yes
+
+    - name: Android backup directory
+      file: path={{data_mount}}/oandbackups state=directory owner=android-sync
 
   handlers:
     - name: restart fail2ban

@@ -69,6 +69,7 @@
         - { src: nextcloud.conf, dest: /etc/nginx/nextcloud.conf }
         - { src: php-fpm-www.conf, dest: /etc/php-fpm.d/www.conf }
         - { src: wallabag.conf, dest: /etc/nginx/wallabag.conf }
+        - { src: php.ini, dest: /etc/php.ini }
 
       notify:
         - reload nginx
