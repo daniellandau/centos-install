@@ -1,0 +1,14 @@
+---
+- hosts: [ server ]
+  gather_facts: true
+  become: yes
+
+  pre_tasks:
+    - yum: pkg=iptables-services state=present
+    - service: name={{item}} state=started enabled=yes
+      with_items: [ iptables ]
+  roles:
+    - role: kyl191.openvpn
+      clients: [ laptop, gnubee, phone ]
+      openvpn_redirect_gateway: false
+      openvpn_client_register_dns: false

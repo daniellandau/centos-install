@@ -6,7 +6,9 @@ ansible-galaxy install geerlingguy.repo-epel --roles-path roles
 ansible-galaxy install geerlingguy.repo-remi --roles-path roles
 ansible-galaxy install thefinn93.letsencrypt --roles-path roles
 ansible-galaxy install bertvv.mariadb --roles-path roles
+ansible-galaxy install kyl191.openvpn --roles-path roles
 ansible-playbook email.yml -i inventory.ini --ask-become-pass
+ansible-playbook openvpn.yml -i inventory.ini --ask-become-pass
 ansible-playbook misc.yml -i inventory.ini --ask-become-pass
 ansible-playbook web.yml -i inventory.ini --ask-become-pass
 ```
