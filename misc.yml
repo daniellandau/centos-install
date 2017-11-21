@@ -10,6 +10,7 @@
         - fail2ban-systemd
         - yum-cron
         - scponly
+        - nfs-utils
 
     - copy: src=fail2ban-jail.local dest=/etc/fail2ban/jail.local
       notify:
@@ -31,6 +32,15 @@
 
     - name: Android backup directory
       file: path={{data_mount}}/oandbackups state=directory owner=android-sync
+
+    - file: path=/srv/nfs/Lataukset state=directory
+
+    - name: Mount home server
+      mount:
+        path: /srv/nfs/Lataukset
+        fstype: nfs
+        state: present # or mounted
+        src: "{{nfs_host}}:/export/Lataukset"
 
   handlers:
     - name: restart fail2ban
