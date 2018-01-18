@@ -91,4 +91,6 @@ resolve_dequoted_address = no
 non_smtpd_milters=inet:127.0.0.1:8891
 smtpd_milters=inet:127.0.0.1:8891
 
+# Fix for bounce `Command time limit exceeded: "/usr/bin/spamc"`
+command_time_limit = 2000s
 
