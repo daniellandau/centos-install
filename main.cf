@@ -79,7 +79,6 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_security_options = noanonymous
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
 
-
 # Mailbox and mail size
 mailbox_size_limit = 0
 message_size_limit = 0
